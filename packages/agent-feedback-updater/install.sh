@@ -43,7 +43,7 @@ fi
 
 # 既登録チェック（冪等性保証）
 if jq -e --arg cmd "$HOOK_CMD" \
-  'any(.hooks.Stop // []; any(.hooks[]?; .command == $cmd))' \
+  '[.hooks.Stop // [] | .[] | .hooks[]? | select(.command == $cmd)] | length > 0' \
   "$SETTINGS_FILE" > /dev/null 2>&1; then
   echo "Stop hook already registered. Skipping."
   exit 0

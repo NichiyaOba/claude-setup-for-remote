@@ -5,7 +5,7 @@ set -uo pipefail
 
 # --- キーワード定義（変更・追加が容易なよう冒頭にまとめる） ---
 # 対象言及語: エージェントやプロンプト関連の言及
-TARGET_PATTERN='(agent|エージェント|プロンプト|prompt|指示|ルール|規約|agents/|\.md)'
+TARGET_PATTERN='(agent|エージェント|プロンプト|prompt|指示|ルール|規約|agents/|CLAUDE\.md)'
 # フィードバック語: 修正・改善の要求
 FEEDBACK_PATTERN='(修正|改善|変えて|直して|追加して|変更して|削除して|更新|update|fix|improve|change|remove|add)'
 
