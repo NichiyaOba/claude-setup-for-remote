@@ -16,7 +16,10 @@
       "Bash(wc *)",
       "Bash(mkdir *)",
       "Bash(npm test *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(gh pr *)",
+      "Bash(gh repo *)",
+      "Bash(gh run *)"
     ]
   }
 }
