@@ -69,19 +69,24 @@ Claude Code のプロンプトで `/dev` コマンドにタスクの説明を渡
 
 ### ワークフロー詳細
 
-`/dev` コマンドは以下の2フェーズを順番に実行する。各フェーズはレビューで承認されるまで最大3回ループする。
+`/dev` コマンドは以下の3フェーズを順番に実行する。設計・実装フェーズはレビューで承認されるまで最大3回ループする。
 
 ```
+Phase 0: 調査
+  ┌─────────────────────────────────────────────────┐
+  │  investigator (コードベース調査・レポート作成)      │
+  └─────────────────────────────────────────────────┘
+       ↓
 Phase 1: 設計ループ
   ┌─────────────────────────────────────────────────┐
-  │  designer (設計書作成)                            │
+  │  designer (設計書・コミット計画作成)               │
   │       ↓                                          │
   │  design-reviewer (レビュー)                       │
   │       ↓                                          │
   │  APPROVED → Phase 2 へ                           │
   │  NEEDS_REVISION → designer に戻る (最大3回)       │
   └─────────────────────────────────────────────────┘
-
+       ↓
 Phase 2: 実装ループ
   ┌─────────────────────────────────────────────────┐
   │  implementer (コード実装)                         │
@@ -97,12 +102,24 @@ Phase 2: 実装ループ
 
 ### エージェント構成
 
-| エージェント | 役割 | 定義ファイル |
-|---|---|---|
-| designer | 要件分析・アーキテクチャ設計・設計書の作成 | `.claude/agents/designer.md` |
-| design-reviewer | 設計書のレビュー・承認/修正判定 | `.claude/agents/design-reviewer.md` |
-| implementer | 設計書に基づくコード実装・テスト作成 | `.claude/agents/implementer.md` |
-| implementation-reviewer | コードの品質・設計準拠性のレビュー・承認/修正判定 | `.claude/agents/implementation-reviewer.md` |
+`/dev` ワークフローで使用されるエージェント:
+
+| エージェント | 役割 | モデル | 定義ファイル |
+|---|---|---|---|
+| investigator | コードベース調査・調査レポート作成 | Sonnet | `.claude/agents/investigator.md` |
+| designer | 要件分析・アーキテクチャ設計・設計書の作成 | Sonnet | `.claude/agents/designer.md` |
+| design-reviewer | 設計書のレビュー・承認/修正判定 | Opus | `.claude/agents/design-reviewer.md` |
+| implementer | 設計書に基づくコード実装・テスト作成 | Sonnet | `.claude/agents/implementer.md` |
+| implementation-reviewer | コードの品質・設計準拠性のレビュー・承認/修正判定 | Opus | `.claude/agents/implementation-reviewer.md` |
+
+ユーティリティエージェント（`/dev` 以外でも利用可能）:
+
+| エージェント | 役割 | モデル | 定義ファイル |
+|---|---|---|---|
+| code-reviewer | コード変更後の品質・セキュリティ・保守性レビュー | Sonnet | `.claude/agents/code-reviewer.md` |
+| commit-planner | diff 分析に基づく最適なコミット分割計画の作成 | Opus | `.claude/agents/commit-planner.md` |
+
+実装系エージェントは Sonnet（高速・低コスト）、品質ゲートとなるレビュー・判断系エージェントは Opus（高精度）を使用する構成。
 
 ### エージェントのカスタマイズ
 
