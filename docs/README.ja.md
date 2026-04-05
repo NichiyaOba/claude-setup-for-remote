@@ -81,12 +81,12 @@ Phase 0: 調査
        ↓
 Phase 1: 設計ループ
   ┌─────────────────────────────────────────────────┐
-  │  designer (設計書・コミット計画作成)               │
+  │  architect (設計書・コミット計画作成)               │
   │       ↓                                          │
   │  design-reviewer (レビュー)                       │
   │       ↓                                          │
   │  APPROVED → Phase 2 へ                           │
-  │  NEEDS_REVISION → designer に戻る (最大3回)       │
+  │  NEEDS_REVISION → architect に戻る (最大3回)       │
   └─────────────────────────────────────────────────┘
        ↓
 Phase 2: 実装ループ
@@ -109,7 +109,7 @@ Phase 2: 実装ループ
 | エージェント | 役割 | モデル | 定義ファイル |
 |---|---|---|---|
 | investigator | コードベース調査・調査レポート作成 | Sonnet | `.claude/agents/investigator.md` |
-| designer | 要件分析・アーキテクチャ設計・設計書の作成 | Sonnet | `.claude/agents/designer.md` |
+| architect | 要件分析・アーキテクチャ設計・設計書の作成 | Sonnet | `.claude/agents/architect.md` |
 | design-reviewer | 設計書のレビュー・承認/修正判定 | Opus | `.claude/agents/design-reviewer.md` |
 | implementer | 設計書に基づくコード実装・テスト作成 | Sonnet | `.claude/agents/implementer.md` |
 | implementation-reviewer | コードの品質・設計準拠性のレビュー・承認/修正判定 | Opus | `.claude/agents/implementation-reviewer.md` |

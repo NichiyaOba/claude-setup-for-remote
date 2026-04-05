@@ -81,12 +81,12 @@ Phase 0: Investigation
        ↓
 Phase 1: Design Loop
   ┌─────────────────────────────────────────────────┐
-  │  designer (Design document & commit plan)        │
+  │  architect (Design document & commit plan)        │
   │       ↓                                          │
   │  design-reviewer (Review)                        │
   │       ↓                                          │
   │  APPROVED → Proceed to Phase 2                   │
-  │  NEEDS_REVISION → Back to designer (max 3x)      │
+  │  NEEDS_REVISION → Back to architect (max 3x)      │
   └─────────────────────────────────────────────────┘
        ↓
 Phase 2: Implementation Loop
@@ -109,7 +109,7 @@ Agents used in the `/dev` workflow:
 | Agent | Role | Model | Definition |
 |-------|------|-------|------------|
 | investigator | Codebase investigation & report | Sonnet | `.claude/agents/investigator.md` |
-| designer | Requirements analysis, architecture design & document creation | Sonnet | `.claude/agents/designer.md` |
+| architect | Requirements analysis, architecture design & document creation | Sonnet | `.claude/agents/architect.md` |
 | design-reviewer | Design document review & approval/revision decisions | Opus | `.claude/agents/design-reviewer.md` |
 | implementer | Code implementation based on design documents | Sonnet | `.claude/agents/implementer.md` |
 | implementation-reviewer | Code quality & design compliance review | Opus | `.claude/agents/implementation-reviewer.md` |
