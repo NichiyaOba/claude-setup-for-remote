@@ -81,12 +81,12 @@ Phase 0: Investigation
        ↓
 Phase 1: Design Loop
   ┌─────────────────────────────────────────────────┐
-  │  designer (Design document & commit plan)        │
+  │  architect (Design document & commit plan)        │
   │       ↓                                          │
   │  design-reviewer (Review)                        │
   │       ↓                                          │
   │  APPROVED → Proceed to Phase 2                   │
-  │  NEEDS_REVISION → Back to designer (max 3x)      │
+  │  NEEDS_REVISION → Back to architect (max 3x)      │
   └─────────────────────────────────────────────────┘
        ↓
 Phase 2: Implementation Loop
@@ -102,6 +102,34 @@ Phase 2: Implementation Loop
 
 If not approved after 3 loops, the decision is deferred to the user ("proceed as-is" / "fix manually" / "abort").
 
+### Dependabot PR Automation
+
+The `/dependabot` command automates the processing of Dependabot PRs: merging the default branch, investigating library changes, posting a summary comment, and approving if safe.
+
+```
+/dependabot
+```
+
+#### Arguments
+
+| Format | Description |
+|--------|-------------|
+| _(none)_ | Process all open Dependabot PRs in the current repository |
+| PR URL | Process a specific PR (e.g. `https://github.com/owner/repo/pull/123`) |
+| Branch name | Process the PR for a specific branch |
+| Repository URL | Process all open Dependabot PRs in the specified repository |
+
+#### Workflow
+
+```
+For each Dependabot PR:
+  1. Merge default branch into PR branch
+  2. Investigate changelog, breaking changes & security fixes
+  3. Post summary comment on PR
+  4. Approve if no breaking changes detected
+  5. Monitor CI status (up to 10 min)
+```
+
 ### Agent Configuration
 
 Agents used in the `/dev` workflow:
@@ -109,7 +137,7 @@ Agents used in the `/dev` workflow:
 | Agent | Role | Model | Definition |
 |-------|------|-------|------------|
 | investigator | Codebase investigation & report | Sonnet | `.claude/agents/investigator.md` |
-| designer | Requirements analysis, architecture design & document creation | Sonnet | `.claude/agents/designer.md` |
+| architect | Requirements analysis, architecture design & document creation | Sonnet | `.claude/agents/architect.md` |
 | design-reviewer | Design document review & approval/revision decisions | Opus | `.claude/agents/design-reviewer.md` |
 | implementer | Code implementation based on design documents | Sonnet | `.claude/agents/implementer.md` |
 | implementation-reviewer | Code quality & design compliance review | Opus | `.claude/agents/implementation-reviewer.md` |

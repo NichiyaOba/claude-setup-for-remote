@@ -81,12 +81,12 @@ Phase 0: 調査
        ↓
 Phase 1: 設計ループ
   ┌─────────────────────────────────────────────────┐
-  │  designer (設計書・コミット計画作成)               │
+  │  architect (設計書・コミット計画作成)               │
   │       ↓                                          │
   │  design-reviewer (レビュー)                       │
   │       ↓                                          │
   │  APPROVED → Phase 2 へ                           │
-  │  NEEDS_REVISION → designer に戻る (最大3回)       │
+  │  NEEDS_REVISION → architect に戻る (最大3回)       │
   └─────────────────────────────────────────────────┘
        ↓
 Phase 2: 実装ループ
@@ -102,6 +102,34 @@ Phase 2: 実装ループ
 
 3回のループで承認されない場合は、ユーザーに判断を委ねる（「このまま進む」/「手動で修正」/「中止」）。
 
+### Dependabot PR 自動処理
+
+`/dependabot` コマンドは、Dependabot が作成した PR を自動処理する。デフォルトブランチのマージ、ライブラリ変更の調査、サマリーコメントの投稿、安全であれば Approve までを一括実行する。
+
+```
+/dependabot
+```
+
+#### 引数
+
+| 形式 | 説明 |
+|------|------|
+| _(なし)_ | カレントリポジトリの全オープン Dependabot PR を処理 |
+| PR URL | 特定の PR を処理（例: `https://github.com/owner/repo/pull/123`） |
+| ブランチ名 | 特定のブランチに対応する PR を処理 |
+| リポジトリ URL | 指定リポジトリの全オープン Dependabot PR を処理 |
+
+#### ワークフロー
+
+```
+各 Dependabot PR に対して:
+  1. デフォルトブランチを PR ブランチにマージ
+  2. チェンジログ・破壊的変更・セキュリティ修正を調査
+  3. PR にサマリーコメントを投稿
+  4. 破壊的変更がなければ Approve
+  5. CI の完了を監視（最大10分）
+```
+
 ### エージェント構成
 
 `/dev` ワークフローで使用されるエージェント:
@@ -109,7 +137,7 @@ Phase 2: 実装ループ
 | エージェント | 役割 | モデル | 定義ファイル |
 |---|---|---|---|
 | investigator | コードベース調査・調査レポート作成 | Sonnet | `.claude/agents/investigator.md` |
-| designer | 要件分析・アーキテクチャ設計・設計書の作成 | Sonnet | `.claude/agents/designer.md` |
+| architect | 要件分析・アーキテクチャ設計・設計書の作成 | Sonnet | `.claude/agents/architect.md` |
 | design-reviewer | 設計書のレビュー・承認/修正判定 | Opus | `.claude/agents/design-reviewer.md` |
 | implementer | 設計書に基づくコード実装・テスト作成 | Sonnet | `.claude/agents/implementer.md` |
 | implementation-reviewer | コードの品質・設計準拠性のレビュー・承認/修正判定 | Opus | `.claude/agents/implementation-reviewer.md` |
