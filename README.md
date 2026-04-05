@@ -102,6 +102,34 @@ Phase 2: Implementation Loop
 
 If not approved after 3 loops, the decision is deferred to the user ("proceed as-is" / "fix manually" / "abort").
 
+### Dependabot PR Automation
+
+The `/dependabot` command automates the processing of Dependabot PRs: merging the default branch, investigating library changes, posting a summary comment, and approving if safe.
+
+```
+/dependabot
+```
+
+#### Arguments
+
+| Format | Description |
+|--------|-------------|
+| _(none)_ | Process all open Dependabot PRs in the current repository |
+| PR URL | Process a specific PR (e.g. `https://github.com/owner/repo/pull/123`) |
+| Branch name | Process the PR for a specific branch |
+| Repository URL | Process all open Dependabot PRs in the specified repository |
+
+#### Workflow
+
+```
+For each Dependabot PR:
+  1. Merge default branch into PR branch
+  2. Investigate changelog, breaking changes & security fixes
+  3. Post summary comment on PR
+  4. Approve if no breaking changes detected
+  5. Monitor CI status (up to 10 min)
+```
+
 ### Agent Configuration
 
 Agents used in the `/dev` workflow:
