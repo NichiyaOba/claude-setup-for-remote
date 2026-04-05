@@ -1,134 +1,136 @@
 # claude-setup-for-remote
 
-ClaudeのリモートWeb/App実行環境向けセットアップスクリプト集。
-`main.sh` を実行するだけで必要なツールが一括インストールされる。
+A collection of setup scripts for Claude's remote Web/App execution environments.
+Simply run `main.sh` to install all required tools at once.
 
-## 使い方
+> **[日本語版ドキュメント](docs/README.ja.md)**
 
-### Claude Code 上でのセットアップ（ワンライナー）
+## Usage
 
-Claude のリモート実行環境（Web / App）のプロンプトに貼り付けて実行する:
+### Setup on Claude Code (One-liner)
+
+Paste and execute the following in a Claude remote execution environment (Web / App):
 
 ```bash
 WORKDIR="$(mktemp -d /tmp/claude-setup-for-remote.XXXXXX)" && git clone https://github.com/NichiyaOba/claude-setup-for-remote.git "${WORKDIR}" && bash "${WORKDIR}/main.sh"
 ```
 
-リポジトリを一時ディレクトリに clone し、`main.sh` を実行する。
+This clones the repository into a temporary directory and runs `main.sh`.
 
-### 通常の実行
+### Standard Execution
 
 ```bash
 git clone https://github.com/NichiyaOba/claude-setup-for-remote.git
 bash claude-setup-for-remote/main.sh
 ```
 
-## インストールされるツール
+## Installed Tools
 
-| ツール | バージョン | 説明 |
-|--------|-----------|------|
-| [pinact](https://github.com/suzuki-shunsuke/pinact) | v3.9.0 | GitHub ActionsのバージョンをSHAにピン留めするツール |
-| [jq](https://github.com/jqlang/jq) | jq-1.8.1 | 軽量で柔軟なコマンドラインJSONプロセッサ |
-| [gh](https://github.com/cli/cli) | v2.89.0 | GitHub公式CLI（PR・Issue・Actions操作） |
-| [shellcheck](https://github.com/koalaman/shellcheck) | v0.11.0 | シェルスクリプト静的解析ツール |
-| [actionlint](https://github.com/rhysd/actionlint) | v1.7.12 | GitHub Actionsワークフロー静的解析ツール |
+| Tool | Version | Description |
+|------|---------|-------------|
+| [pinact](https://github.com/suzuki-shunsuke/pinact) | v3.9.0 | Pin GitHub Actions versions to SHAs |
+| [jq](https://github.com/jqlang/jq) | jq-1.8.1 | Lightweight and flexible command-line JSON processor |
+| [gh](https://github.com/cli/cli) | v2.89.0 | GitHub official CLI (PRs, Issues, Actions) |
+| [shellcheck](https://github.com/koalaman/shellcheck) | v0.11.0 | Static analysis tool for shell scripts |
+| [actionlint](https://github.com/rhysd/actionlint) | v1.7.12 | Static analysis tool for GitHub Actions workflows |
 
-## ツールの追加方法
+## Adding Tools
 
-`packages/<ツール名>/` ディレクトリを作成し、以下の2ファイルを置く。
+Create a `packages/<tool-name>/` directory and place the following two files:
 
 ```
 packages/
-└── <ツール名>/
-    ├── install.sh   # インストールスクリプト（必須）
-    └── README.md    # ツールの説明（推奨）
+└── <tool-name>/
+    ├── install.sh   # Installation script (required)
+    └── README.md    # Tool description (recommended)
 ```
 
-`main.sh` は `packages/*/install.sh` を自動検出して実行するため、追加作業はファイルを置くだけでよい。
+`main.sh` automatically detects and runs `packages/*/install.sh`, so all you need to do is add the files.
 
-## マルチエージェントエンジニアリングフレームワーク
+## Multi-Agent Engineering Framework
 
-本リポジトリには、Claude Code上でマルチエージェントによる開発ワークフローを実行する基盤が含まれている。
+This repository includes a framework for running multi-agent development workflows on Claude Code.
 
-### クイックスタート
+### Quick Start
 
-Claude Code のプロンプトで `/dev` コマンドにタスクの説明を渡すだけで、設計から実装までが自動実行される。
-
-```
-/dev ユーザー認証機能を追加する
-```
-
-#### 実行例
+Simply pass a task description to the `/dev` command in a Claude Code prompt to automatically execute from design to implementation:
 
 ```
-/dev packages/shellcheck/ に shellcheck のインストールスクリプトを追加する
+/dev Add user authentication feature
+```
+
+#### Examples
+
+```
+/dev Add a shellcheck installation script to packages/shellcheck/
 ```
 
 ```
-/dev main.sh にドライランモード（--dry-run オプション）を実装する
+/dev Implement dry-run mode (--dry-run option) in main.sh
 ```
 
-### ワークフロー詳細
+### Workflow Details
 
-`/dev` コマンドは以下の3フェーズを順番に実行する。設計・実装フェーズはレビューで承認されるまで最大3回ループする。
+The `/dev` command executes the following 3 phases sequentially. The design and implementation phases loop up to 3 times until approved by review.
 
 ```
-Phase 0: 調査
+Phase 0: Investigation
   ┌─────────────────────────────────────────────────┐
-  │  investigator (コードベース調査・レポート作成)      │
+  │  investigator (Codebase investigation & report)  │
   └─────────────────────────────────────────────────┘
        ↓
-Phase 1: 設計ループ
+Phase 1: Design Loop
   ┌─────────────────────────────────────────────────┐
-  │  designer (設計書・コミット計画作成)               │
+  │  designer (Design document & commit plan)        │
   │       ↓                                          │
-  │  design-reviewer (レビュー)                       │
+  │  design-reviewer (Review)                        │
   │       ↓                                          │
-  │  APPROVED → Phase 2 へ                           │
-  │  NEEDS_REVISION → designer に戻る (最大3回)       │
+  │  APPROVED → Proceed to Phase 2                   │
+  │  NEEDS_REVISION → Back to designer (max 3x)      │
   └─────────────────────────────────────────────────┘
        ↓
-Phase 2: 実装ループ
+Phase 2: Implementation Loop
   ┌─────────────────────────────────────────────────┐
-  │  implementer (コード実装)                         │
+  │  implementer (Code implementation)               │
   │       ↓                                          │
-  │  implementation-reviewer (レビュー)               │
+  │  implementation-reviewer (Review)                │
   │       ↓                                          │
-  │  APPROVED → 完了                                 │
-  │  NEEDS_REVISION → implementer に戻る (最大3回)    │
+  │  APPROVED → Done                                 │
+  │  NEEDS_REVISION → Back to implementer (max 3x)   │
   └─────────────────────────────────────────────────┘
 ```
 
-3回のループで承認されない場合は、ユーザーに判断を委ねる（「このまま進む」/「手動で修正」/「中止」）。
+If not approved after 3 loops, the decision is deferred to the user ("proceed as-is" / "fix manually" / "abort").
 
-### エージェント構成
+### Agent Configuration
 
-`/dev` ワークフローで使用されるエージェント:
+Agents used in the `/dev` workflow:
 
-| エージェント | 役割 | モデル | 定義ファイル |
-|---|---|---|---|
-| investigator | コードベース調査・調査レポート作成 | Sonnet | `.claude/agents/investigator.md` |
-| designer | 要件分析・アーキテクチャ設計・設計書の作成 | Sonnet | `.claude/agents/designer.md` |
-| design-reviewer | 設計書のレビュー・承認/修正判定 | Opus | `.claude/agents/design-reviewer.md` |
-| implementer | 設計書に基づくコード実装・テスト作成 | Sonnet | `.claude/agents/implementer.md` |
-| implementation-reviewer | コードの品質・設計準拠性のレビュー・承認/修正判定 | Opus | `.claude/agents/implementation-reviewer.md` |
+| Agent | Role | Model | Definition |
+|-------|------|-------|------------|
+| investigator | Codebase investigation & report | Sonnet | `.claude/agents/investigator.md` |
+| designer | Requirements analysis, architecture design & document creation | Sonnet | `.claude/agents/designer.md` |
+| design-reviewer | Design document review & approval/revision decisions | Opus | `.claude/agents/design-reviewer.md` |
+| implementer | Code implementation based on design documents | Sonnet | `.claude/agents/implementer.md` |
+| implementation-reviewer | Code quality & design compliance review | Opus | `.claude/agents/implementation-reviewer.md` |
 
-ユーティリティエージェント（`/dev` 以外でも利用可能）:
+Utility agents (available outside `/dev` as well):
 
-| エージェント | 役割 | モデル | 定義ファイル |
-|---|---|---|---|
-| code-reviewer | コード変更後の品質・セキュリティ・保守性レビュー | Sonnet | `.claude/agents/code-reviewer.md` |
-| commit-planner | diff 分析に基づく最適なコミット分割計画の作成 | Opus | `.claude/agents/commit-planner.md` |
+| Agent | Role | Model | Definition |
+|-------|------|-------|------------|
+| code-reviewer | Post-change quality, security & maintainability review | Sonnet | `.claude/agents/code-reviewer.md` |
+| commit-planner | Optimal commit splitting based on diff analysis | Opus | `.claude/agents/commit-planner.md` |
 
-実装系エージェントは Sonnet（高速・低コスト）、品質ゲートとなるレビュー・判断系エージェントは Opus（高精度）を使用する構成。
+Implementation agents use Sonnet (fast, low-cost), while review/decision agents serving as quality gates use Opus (high-accuracy).
 
-### エージェントのカスタマイズ
+### Customizing Agents
 
-各エージェントの振る舞いは `.claude/agents/` 配下の Markdown ファイルで定義されている。
-ファイルを編集することで、レビュー観点・出力フォーマット・判定基準などを自由にカスタマイズできる。
+Each agent's behavior is defined in Markdown files under `.claude/agents/`.
+Edit these files to customize review criteria, output formats, and decision thresholds.
 
-#### カスタマイズ例
+#### Customization Examples
 
-- **レビュー観点の追加**: `design-reviewer.md` の「レビュー観点」セクションに新しい項目を追加
-- **出力フォーマットの変更**: 各エージェントの「出力フォーマット」セクションを編集
-- **判定基準の調整**: `*-reviewer.md` の「判定基準」セクションで APPROVED/NEEDS_REVISION の閾値を変更
-- **ループ上限の変更**: `.claude/commands/dev.md` 内のループ上限値を変更
+- **Add review criteria**: Add new items to the "Review Criteria" section in `design-reviewer.md`
+- **Change output format**: Edit the "Output Format" section of each agent
+- **Adjust decision thresholds**: Modify APPROVED/NEEDS_REVISION thresholds in `*-reviewer.md`
+- **Change loop limits**: Modify the loop limit values in `.claude/commands/dev.md`
