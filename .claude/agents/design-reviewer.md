@@ -3,7 +3,7 @@ name: design-reviewer
 description: |
   設計レビューエージェント。設計書をレビューし、承認(APPROVED)または修正要求(NEEDS_REVISION)の判定を行う。
   Use this agent to review design documents and provide structured feedback.
-model: sonnet
+model: opus
 tools:
   - Read
   - Glob

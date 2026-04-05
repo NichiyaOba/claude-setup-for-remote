@@ -3,7 +3,7 @@ name: implementation-reviewer
 description: |
   実装レビューエージェント。実装コードをレビューし、承認(APPROVED)または修正要求(NEEDS_REVISION)の判定を行う。
   Use this agent to review implemented code and provide structured feedback.
-model: sonnet
+model: opus
 tools:
   - Read
   - Bash
