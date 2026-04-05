@@ -27,6 +27,10 @@ bash claude-setup-for-remote/main.sh
 | ツール | バージョン | 説明 |
 |--------|-----------|------|
 | [pinact](https://github.com/suzuki-shunsuke/pinact) | v3.9.0 | GitHub ActionsのバージョンをSHAにピン留めするツール |
+| [jq](https://github.com/jqlang/jq) | jq-1.8.1 | 軽量で柔軟なコマンドラインJSONプロセッサ |
+| [gh](https://github.com/cli/cli) | v2.89.0 | GitHub公式CLI（PR・Issue・Actions操作） |
+| [shellcheck](https://github.com/koalaman/shellcheck) | v0.11.0 | シェルスクリプト静的解析ツール |
+| [actionlint](https://github.com/rhysd/actionlint) | v1.7.12 | GitHub Actionsワークフロー静的解析ツール |
 
 ## ツールの追加方法
 

@@ -1,59 +1,58 @@
-# Claude Setup for Remote — マルチエージェントエンジニアリング基盤
+# CLAUDE.md
 
 ## プロジェクト概要
 
-このリポジトリはClaude Codeリモート実行環境向けのセットアップスクリプト集であり、マルチエージェントによるエンジニアリングワークフロー基盤を提供します。
+Claude のリモート Web/App 実行環境向けセットアップスクリプト集。
+`packages/<ツール名>/` にインストールスクリプトを配置し、`main.sh` が自動検出して実行する構成。
 
-## マルチエージェントワークフロー
+## 実装時の行動規範: 既存実装の模倣
 
-`/dev` コマンドで以下のワークフローが自動実行されます：
+新しい機能追加や変更を行う際は、必ず以下の手順を踏むこと。
 
-```
-Phase 1: 設計ループ
-  designer → design-reviewer → (NEEDS_REVISION → designer → ...) → APPROVED
+### 1. リポジトリ内の類似実装を探す
 
-Phase 2: 実装ループ
-  implementer → implementation-reviewer → (NEEDS_REVISION → implementer → ...) → APPROVED
-```
+- 変更対象と同種のファイル（例: 新しいパッケージ追加なら `packages/*/install.sh` や `packages/*/README.md`）をクローリングし、既存の実装パターンを把握する
+- ディレクトリ構成、ファイル命名規則、スクリプトの書き方（`set -euo pipefail`、SHA256検証、`trap` によるクリーンアップ等）を確認する
 
-### エージェント一覧
+### 2. その実装を導入したブランチ・PRを特定する
 
-| エージェント | 役割 | 定義ファイル |
-|---|---|---|
-| designer | 設計書の作成 | `.claude/agents/designer.md` |
-| design-reviewer | 設計書のレビュー | `.claude/agents/design-reviewer.md` |
-| implementer | コードの実装 | `.claude/agents/implementer.md` |
-| implementation-reviewer | コードのレビュー | `.claude/agents/implementation-reviewer.md` |
+類似の既存実装が見つかったら、以下のコマンドで **どのブランチ・PRによって追加されたか** を特定する:
 
-### 使い方
+```bash
+# ファイルの追加コミットを特定
+git log --diff-filter=A --follow -- <対象ファイルパス>
 
-```
-/dev <タスクの説明>
+# そのコミットが含まれるマージコミット（PR）を特定
+git log --merges --ancestry-path <コミットハッシュ>..main
+
+# PR番号が判明したら詳細を確認（GitHub MCP tools を使用）
+# mcp__github__get_pull_request でPRの説明・レビューコメントを確認する
 ```
 
-例: `/dev ユーザー認証機能を追加する`
+### 3. 特定したPRのパターンを模倣する
+
+- **コミットメッセージの形式**: 既存PRのコミットメッセージ規約（`feat:`, `fix:`, `docs:`, `chore:` 等の Conventional Commits プレフィックス）に従う
+- **ブランチ命名規則**: 既存PRのブランチ名パターン（例: `feature-<ツール名>`, `feature/<チケット番号>/<説明>`）に合わせる
+- **コードスタイル**: 既存の `install.sh` と同じ構造（変数定義 → ダウンロード → SHA256検証 → 展開）を踏襲する
+- **ドキュメント**: 既存の `README.md` と同じフォーマット（ツール名、リポジトリURL、バージョン）で記述する
+- **PRの粒度**: 既存PRと同程度の変更単位にまとめる
 
 ## リポジトリ構成
 
 ```
-├── main.sh                    # セットアップエントリーポイント
-├── packages/                  # インストールパッケージ群
-│   └── pinact/               # GitHub Actions pinning tool
-├── CLAUDE.md                  # このファイル（プロジェクトコンテキスト）
-└── .claude/
-    ├── settings.json          # 権限設定
-    ├── agents/                # エージェント定義
-    │   ├── designer.md
-    │   ├── design-reviewer.md
-    │   ├── implementer.md
-    │   └── implementation-reviewer.md
-    └── commands/
-        └── dev.md             # /dev オーケストレーターコマンド
+.
+├── CLAUDE.md          # エージェント設定（このファイル）
+├── README.md          # プロジェクト説明
+├── main.sh            # packages/*/install.sh を自動検出・実行するエントリポイント
+└── packages/
+    └── <ツール名>/
+        ├── install.sh # インストールスクリプト（必須）
+        └── README.md  # ツールの説明（推奨）
 ```
 
-## 開発規約
+## コーディング規約
 
-- コミュニケーションは日本語で行う
-- コミットメッセージは英語（Conventional Commits形式）
-- コードコメントは英語
-- 設計書・レビュー結果は日本語
+- シェルスクリプトは `set -euo pipefail` を使用する
+- 外部バイナリのダウンロードには必ず SHA256 チェックサムによる検証を含める
+- 一時ディレクトリは `trap` で確実にクリーンアップする
+- `curl` には `--retry 3 --connect-timeout 10` を付与する
