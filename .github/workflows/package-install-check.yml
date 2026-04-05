@@ -1,4 +1,4 @@
-name: CI
+name: package-install-check
 
 on:
   push:
@@ -6,13 +6,13 @@ on:
     paths:
       - 'main.sh'
       - 'packages/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/package-install-check.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'main.sh'
       - 'packages/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/package-install-check.yml'
 
 jobs:
   verify-setup:
