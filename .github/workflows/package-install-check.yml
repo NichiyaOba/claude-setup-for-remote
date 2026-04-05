@@ -1,0 +1,31 @@
+name: package-install-check
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'main.sh'
+      - 'packages/**'
+      - '.github/workflows/package-install-check.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'main.sh'
+      - 'packages/**'
+      - '.github/workflows/package-install-check.yml'
+
+jobs:
+  verify-setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run main.sh
+        run: sudo bash main.sh
+      - name: Verify installed tools
+        run: |
+          which gh          && gh --version
+          which shellcheck  && shellcheck --version
+          which jq          && jq --version
+          which pinact      && pinact --version
+          which actionlint  && actionlint --version
