@@ -40,3 +40,35 @@ packages/
 ```
 
 `main.sh` は `packages/*/install.sh` を自動検出して実行するため、追加作業はファイルを置くだけでよい。
+
+## マルチエージェントエンジニアリングフレームワーク
+
+本リポジトリには、Claude Code上でマルチエージェントによる開発ワークフローを実行する基盤が含まれている。
+
+### ワークフロー
+
+`/dev <タスクの説明>` コマンドで以下のフローが自動実行される：
+
+```
+Phase 1: 設計ループ
+  designer → design-reviewer → (修正が必要なら designer に戻る) → 承認
+
+Phase 2: 実装ループ
+  implementer → implementation-reviewer → (修正が必要なら implementer に戻る) → 承認
+```
+
+各フェーズは最大3回のレビューループを実行し、それでも承認されない場合はユーザーに判断を委ねる。
+
+### エージェント構成
+
+| エージェント | 役割 | 定義ファイル |
+|---|---|---|
+| designer | アーキテクチャ設計・設計書の作成 | `.claude/agents/designer.md` |
+| design-reviewer | 設計書のレビュー・承認/修正判定 | `.claude/agents/design-reviewer.md` |
+| implementer | 設計書に基づくコード実装 | `.claude/agents/implementer.md` |
+| implementation-reviewer | 実装コードのレビュー・承認/修正判定 | `.claude/agents/implementation-reviewer.md` |
+
+### エージェントのカスタマイズ
+
+各エージェントの振る舞いは `.claude/agents/` 配下の Markdown ファイルで定義されている。
+ファイルを編集することで、レビュー観点・出力フォーマット・判定基準などを自由にカスタマイズできる。
