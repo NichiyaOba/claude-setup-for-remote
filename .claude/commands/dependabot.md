@@ -6,9 +6,12 @@ description: |
 user-invocable: true
 allowed-tools:
   - Agent
+  - Read
+  - Glob
+  - Grep
   - Bash
-  - WebSearch
-  - WebFetch
+  - TodoWrite
+  - AskUserQuestion
 ---
 
 # /dependabot — dependabot PR 自動処理ワークフロー
@@ -28,6 +31,8 @@ allowed-tools:
 ### 引数パターン
 
 **PR URL が指定された場合** (例: `https://github.com/owner/repo/pull/123`):
+- URLから owner/repo と PR番号を抽出する
+- `gh pr view <PR番号> --repo <owner/repo> --json number,title,url,headRefName,state,author` で詳細を取得する
 - そのPRのみを対象とする
 
 **ブランチ名が指定された場合** (例: `dependabot/npm_and_yarn/lodash-4.17.21`):
@@ -66,7 +71,7 @@ gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 対象PRが1件以上の場合、**順次**（並列ではなく1件ずつ）以下のサブエージェントを起動する。
 
 ```
-Agent(model="claude-sonnet-4-5", prompt="
+Agent(model="claude-sonnet-4-5", tools=["Bash", "WebSearch", "WebFetch", "Read", "Glob", "Grep", "mcp__github__create_pull_request_review", "mcp__github__add_pull_request_review_comment", "mcp__github__get_pull_request", "mcp__github__list_pull_request_files"], prompt="
 あなたはdependabot PRの処理エージェントです。以下のPRを処理してください。
 
 ## 処理対象PR
@@ -87,18 +92,20 @@ Agent(model="claude-sonnet-4-5", prompt="
 
 処理を開始する前に `gh pr view {PR_NUMBER} --repo {REPO} --json state,mergeable` でPRの状態を確認する。
 - state が MERGED または CLOSED の場合: 「PR #{PR_NUMBER} はすでにマージ/クローズ済みのためスキップします。」と出力して処理を終了する。
+- mergeable が CONFLICTING の場合: 「PR #{PR_NUMBER} はコンフリクトが発生しているためスキップします。」とコメントを投稿して処理を終了する。
 
 ---
 
 ## Step B: デフォルトブランチのマージ
 
 1. `gh pr checkout {PR_NUMBER} --repo {REPO}` でPRのブランチをチェックアウトする
-2. `git merge origin/{DEFAULT_BRANCH}` でデフォルトブランチをマージする
+2. `git fetch origin {DEFAULT_BRANCH}` でデフォルトブランチの最新を取得する
+3. `git merge origin/{DEFAULT_BRANCH}` でデフォルトブランチをマージする
    - マージコンフリクトが発生した場合:
      a. `git merge --abort` でマージを中止する
      b. `gh pr comment {PR_NUMBER} --repo {REPO} --body 'マージコンフリクトが発生したため、自動処理をスキップしました。手動での対応が必要です。'` でコメントを投稿する
      c. 「PR #{PR_NUMBER} でマージコンフリクトが発生しました。」と出力して処理を終了する
-3. `git push` でプッシュする
+4. `git push` でプッシュする
    - 失敗した場合: エラーを記録して次のステップに進む（致命的エラーとはしない）
 
 ---
