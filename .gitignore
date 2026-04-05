@@ -1,0 +1,2 @@
+# Stop フック（install.sh が packages/ からコピーするランタイムファイル）
+.claude/hooks/stop-feedback-detector.sh
