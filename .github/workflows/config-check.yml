@@ -1,0 +1,83 @@
+name: config-check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'packages/**'
+      - 'main.sh'
+
+jobs:
+  config-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check package structure
+        run: |
+          set -euo pipefail
+          errors=0
+
+          for pkg_dir in packages/*/; do
+            pkg_name="$(basename "$pkg_dir")"
+
+            # install.sh must exist
+            if [[ ! -f "${pkg_dir}install.sh" ]]; then
+              echo "::error::${pkg_dir}install.sh が見つかりません"
+              errors=$((errors + 1))
+              continue
+            fi
+
+            install_sh="${pkg_dir}install.sh"
+
+            # set -euo pipefail check
+            if ! grep -q 'set -euo pipefail' "$install_sh"; then
+              echo "::error file=${install_sh}::set -euo pipefail が含まれていません"
+              errors=$((errors + 1))
+            fi
+
+            # SHA256 verification check
+            if ! grep -q 'sha256sum' "$install_sh"; then
+              echo "::error file=${install_sh}::SHA256 チェックサム検証が含まれていません"
+              errors=$((errors + 1))
+            fi
+
+            # trap cleanup check
+            if ! grep -q 'trap' "$install_sh"; then
+              echo "::error file=${install_sh}::trap によるクリーンアップが含まれていません"
+              errors=$((errors + 1))
+            fi
+
+            # curl retry and timeout check
+            if grep -q 'curl' "$install_sh"; then
+              if ! grep -q '\-\-retry 3' "$install_sh"; then
+                echo "::error file=${install_sh}::curl に --retry 3 が指定されていません"
+                errors=$((errors + 1))
+              fi
+              if ! grep -q '\-\-connect-timeout 10' "$install_sh"; then
+                echo "::error file=${install_sh}::curl に --connect-timeout 10 が指定されていません"
+                errors=$((errors + 1))
+              fi
+            fi
+
+            # README.md warning
+            if [[ ! -f "${pkg_dir}README.md" ]]; then
+              echo "::warning::${pkg_dir}README.md がありません（推奨）"
+            fi
+
+            echo "OK: ${pkg_name}"
+          done
+
+          if ((errors > 0)); then
+            echo "::error::${errors} 件のエラーが見つかりました"
+            exit 1
+          fi
+
+          echo "All packages passed config checks."
+
+      - name: ShellCheck
+        run: |
+          set -euo pipefail
+          shellcheck --severity=error main.sh packages/*/install.sh
