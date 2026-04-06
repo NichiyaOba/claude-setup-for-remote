@@ -5,6 +5,15 @@ Simply run `main.sh` to install all required tools at once.
 
 > **[日本語版ドキュメント](docs/README.ja.md)**
 
+## Prerequisites
+
+The `gh` CLI requires a `GITHUB_TOKEN` environment variable to authenticate with the GitHub API.
+Set it before running `main.sh`:
+
+```bash
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
 ## Usage
 
 ### Setup on Claude Code (One-liner)
