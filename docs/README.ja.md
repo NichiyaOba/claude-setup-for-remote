@@ -5,6 +5,15 @@
 ClaudeのリモートWeb/App実行環境向けセットアップスクリプト集。
 `main.sh` を実行するだけで必要なツールが一括インストールされる。
 
+## 前提条件
+
+`gh` CLI が GitHub API と認証するために、環境変数 `GITHUB_TOKEN` の設定が必要です。
+`main.sh` を実行する前に設定してください:
+
+```bash
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
 ## 使い方
 
 ### Claude Code 上でのセットアップ（ワンライナー）
