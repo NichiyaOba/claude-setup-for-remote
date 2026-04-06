@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+TARGET_DIR="$(pwd)"
 
 # CI環境ではsettings.json変更とフック配置をスキップ
 if [[ "${CI:-}" == "true" ]]; then
@@ -24,8 +25,8 @@ if ! command -v jq &> /dev/null; then
   fi
 fi
 
-HOOKS_DIR="${REPO_ROOT}/.claude/hooks"
-SETTINGS_FILE="${REPO_ROOT}/.claude/settings.json"
+HOOKS_DIR="${TARGET_DIR}/.claude/hooks"
+SETTINGS_FILE="${TARGET_DIR}/.claude/settings.json"
 HOOK_SCRIPT="${HOOKS_DIR}/stop-feedback-detector.sh"
 HOOK_CMD=".claude/hooks/stop-feedback-detector.sh"
 
