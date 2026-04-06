@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+TARGET_DIR="$(pwd)"
 
 # CI環境ではsettings.json変更とフック配置をスキップ
 if [[ "${CI:-}" == "true" ]]; then
@@ -24,8 +25,9 @@ if ! command -v jq &> /dev/null; then
   fi
 fi
 
-HOOKS_DIR="${REPO_ROOT}/.claude/hooks"
-SETTINGS_FILE="${REPO_ROOT}/.claude/settings.json"
+HOOKS_DIR="${TARGET_DIR}/.claude/hooks"
+# ターゲットの既存 settings.json を変更しないよう settings.local.json を使用
+SETTINGS_FILE="${TARGET_DIR}/.claude/settings.local.json"
 HOOK_SCRIPT="${HOOKS_DIR}/stop-feedback-detector.sh"
 HOOK_CMD=".claude/hooks/stop-feedback-detector.sh"
 
@@ -36,7 +38,7 @@ mkdir -p "$HOOKS_DIR"
 cp "${SCRIPT_DIR}/hooks/stop-feedback-detector.sh" "$HOOK_SCRIPT"
 chmod +x "$HOOK_SCRIPT"
 
-# settings.json が存在しない場合は空のオブジェクトを作成
+# settings.local.json が存在しない場合は空のオブジェクトを作成
 if [[ ! -f "$SETTINGS_FILE" ]]; then
   echo '{}' > "$SETTINGS_FILE"
 fi
@@ -49,7 +51,7 @@ if jq -e --arg cmd "$HOOK_CMD" \
   exit 0
 fi
 
-# settings.json に hooks.Stop エントリを追記マージ
+# settings.local.json に hooks.Stop エントリを追記マージ
 jq --arg cmd "$HOOK_CMD" '
   .hooks.Stop = (.hooks.Stop // []) + [{
     "matcher": "",
