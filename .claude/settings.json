@@ -2,6 +2,8 @@
   "permissions": {
     "allow": [
       "Read",
+      "Edit",
+      "Write",
       "Glob",
       "Grep",
       "Agent",
@@ -9,6 +11,8 @@
       "WebSearch",
       "WebFetch",
       "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(bash *)",
       "Bash(ls *)",
       "Bash(cat *)",
       "Bash(head *)",
@@ -17,9 +21,7 @@
       "Bash(mkdir *)",
       "Bash(npm test *)",
       "Bash(npm run *)",
-      "Bash(gh pr *)",
-      "Bash(gh repo *)",
-      "Bash(gh run *)"
+      "mcp__github__*"
     ]
   }
 }
