@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 # SessionStart hook: MCP ツール初期化に関するコンテキストを注入する
 #
@@ -12,8 +12,10 @@ set -euo pipefail
 # 対策:
 #   このフックの stdout が Claude のコンテキストに注入されるため、
 #   1ターン目での MCP ツール利用制限を Claude に認識させる。
+#
+# 注意: set -e は使用しない（エラー時にセッションをブロックしないため）
 
-cat <<'CONTEXT'
+cat <<'CONTEXT' || exit 0
 ## MCP Tool Initialization Notice
 
 MCP tools (e.g. mcp__github__*) are registered as "deferred" and may NOT be
