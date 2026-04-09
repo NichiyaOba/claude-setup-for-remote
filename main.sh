@@ -21,8 +21,8 @@ done
 TARGET_DIR="$(pwd)"
 if [[ "$(cd "$SCRIPT_DIR" && pwd)" != "$(cd "$TARGET_DIR" && pwd)" ]]; then
 
-  # commands/ と agents/ をコピー
-  for config_dir in commands agents; do
+  # commands/, agents/, hooks/ をコピー
+  for config_dir in commands agents hooks; do
     src="${SCRIPT_DIR}/.claude/${config_dir}"
     dest="${TARGET_DIR}/.claude/${config_dir}"
     if [[ -d "$src" ]]; then
@@ -32,17 +32,20 @@ if [[ "$(cd "$SCRIPT_DIR" && pwd)" != "$(cd "$TARGET_DIR" && pwd)" ]]; then
     fi
   done
 
-  # permissions を settings.local.json にマージ（既存の settings.json には触れない）
+  # permissions と hooks を settings.local.json にマージ（既存の settings.json には触れない）
   if command -v jq &> /dev/null; then
     LOCAL_SETTINGS="${TARGET_DIR}/.claude/settings.local.json"
-    SETUP_PERMISSIONS="$(jq -c '.permissions.allow // []' "${SCRIPT_DIR}/.claude/settings.json")"
+    SETUP_SETTINGS="${SCRIPT_DIR}/.claude/settings.json"
+    SETUP_PERMISSIONS="$(jq -c '.permissions.allow // []' "$SETUP_SETTINGS")"
+    SETUP_HOOKS="$(jq -c '.hooks // {}' "$SETUP_SETTINGS")"
     if [[ ! -f "$LOCAL_SETTINGS" ]]; then
       echo '{}' > "$LOCAL_SETTINGS"
     fi
-    jq --argjson new_perms "$SETUP_PERMISSIONS" '
+    jq --argjson new_perms "$SETUP_PERMISSIONS" --argjson new_hooks "$SETUP_HOOKS" '
       .permissions.allow = ((.permissions.allow // []) + $new_perms | unique)
+      | if ($new_hooks | length) > 0 then .hooks = ((.hooks // {}) * $new_hooks) else . end
     ' "$LOCAL_SETTINGS" > "${LOCAL_SETTINGS}.tmp" && mv "${LOCAL_SETTINGS}.tmp" "$LOCAL_SETTINGS"
-    echo "Merged permissions into .claude/settings.local.json."
+    echo "Merged permissions and hooks into .claude/settings.local.json."
   fi
 
   # .git/info/exclude にセットアップ生成ファイルを追加（git diff に出さない）
