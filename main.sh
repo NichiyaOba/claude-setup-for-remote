@@ -1,7 +1,18 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ターゲットプロジェクトディレクトリの解決（3段フォールバック）
+# 1. 第1引数で明示指定 → 2. git リポジトリのルート → 3. カレントディレクトリ
+if [[ -n "${1:-}" ]]; then
+  TARGET_DIR="$(cd "$1" && pwd)"
+elif target="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+  TARGET_DIR="$target"
+else
+  TARGET_DIR="$(pwd)"
+fi
+export TARGET_DIR
 
 shopt -s nullglob
 install_scripts=( "$SCRIPT_DIR"/packages/*/install.sh )
@@ -16,9 +27,8 @@ for install_script in "${install_scripts[@]}"; do
   bash "$install_script"
 done
 
-# .claude/ 設定をターゲットプロジェクト（CWD）にデプロイ
-# セットアップリポジトリが CWD と異なる場所にある場合のみ実行
-TARGET_DIR="$(pwd)"
+# .claude/ 設定をターゲットプロジェクトにデプロイ
+# セットアップリポジトリとターゲットが異なる場合のみ実行
 if [[ "$(cd "$SCRIPT_DIR" && pwd)" != "$(cd "$TARGET_DIR" && pwd)" ]]; then
 
   # commands/, agents/, hooks/ をコピー

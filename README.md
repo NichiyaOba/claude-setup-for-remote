@@ -21,10 +21,11 @@ export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 Paste and execute the following in a Claude remote execution environment (Web / App):
 
 ```bash
-WORKDIR="$(mktemp -d /tmp/claude-setup-for-remote.XXXXXX)" && git clone https://github.com/NichiyaOba/claude-setup-for-remote.git "${WORKDIR}" && bash "${WORKDIR}/main.sh"
+WORKDIR="$(mktemp -d /tmp/claude-setup-for-remote.XXXXXX)" && git clone https://github.com/NichiyaOba/claude-setup-for-remote.git "${WORKDIR}" && bash "${WORKDIR}/main.sh" "$(pwd)"
 ```
 
 This clones the repository into a temporary directory and runs `main.sh`.
+The `$(pwd)` argument tells the script to deploy `.claude/` config files to the current project directory.
 
 ### Standard Execution
 

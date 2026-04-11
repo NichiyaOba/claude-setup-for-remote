@@ -3,7 +3,14 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-TARGET_DIR="$(pwd)"
+# 環境変数 TARGET_DIR（main.sh からエクスポート）を優先し、未設定なら自力検出
+if [[ -z "${TARGET_DIR:-}" ]]; then
+  if target="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    TARGET_DIR="$target"
+  else
+    TARGET_DIR="$(pwd)"
+  fi
+fi
 
 # CI環境ではsettings.json変更とフック配置をスキップ
 if [[ "${CI:-}" == "true" ]]; then
