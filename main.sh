@@ -7,12 +7,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # 1. 第1引数で明示指定 → 2. git リポジトリのルート → 3. カレントディレクトリ
 if [[ -n "${1:-}" ]]; then
   TARGET_DIR="$(cd "$1" && pwd)"
+  ARG_EXPLICIT=true
 elif target="$(git rev-parse --show-toplevel 2>/dev/null)"; then
   TARGET_DIR="$target"
+  ARG_EXPLICIT=false
 else
   TARGET_DIR="$(pwd)"
+  ARG_EXPLICIT=false
 fi
 export TARGET_DIR
+
+# セットアップリポジトリ自体をターゲットにしている場合の検出
+# 引数なしで自動解決された場合はエラー終了（明示指定の場合は後続ガードで制御）
+if [[ "$ARG_EXPLICIT" == "false" && "$(cd "$SCRIPT_DIR" && pwd)" == "$(cd "$TARGET_DIR" && pwd)" ]]; then
+  echo "Error: TARGET_DIR がセットアップリポジトリ自体に解決されました。" >&2
+  echo "ターゲットプロジェクトのディレクトリを引数で指定してください:" >&2
+  echo "  bash $0 /path/to/your/project" >&2
+  exit 1
+fi
 
 shopt -s nullglob
 install_scripts=( "$SCRIPT_DIR"/packages/*/install.sh )
