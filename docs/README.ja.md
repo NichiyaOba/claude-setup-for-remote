@@ -21,10 +21,11 @@ export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 Claude のリモート実行環境（Web / App）のプロンプトに貼り付けて実行する:
 
 ```bash
-WORKDIR="$(mktemp -d /tmp/claude-setup-for-remote.XXXXXX)" && git clone https://github.com/NichiyaOba/claude-setup-for-remote.git "${WORKDIR}" && bash "${WORKDIR}/main.sh"
+WORKDIR="$(mktemp -d /tmp/claude-setup-for-remote.XXXXXX)" && git clone https://github.com/NichiyaOba/claude-setup-for-remote.git "${WORKDIR}" && bash "${WORKDIR}/main.sh" "$(pwd)"
 ```
 
 リポジトリを一時ディレクトリに clone し、`main.sh` を実行する。
+`$(pwd)` 引数により、現在のプロジェクトディレクトリに `.claude/` 設定ファイルがデプロイされる。
 
 ### 通常の実行
 
